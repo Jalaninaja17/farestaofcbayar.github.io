@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FARESTAofc STORE</title>
+<style>
+    :root {
+      --bg-dark: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      --bg-light: linear-gradient(135deg, #e0f7fa, #ffffff, #c8e6c9);
+      --text-dark: #f0f0f0;
+      --text-light: #111;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--bg-dark);
+      color: var(--text-dark);
+      transition: all 0.5s ease;
+    }
+
+    body.light-mode {
+      background: var(--bg-light);
+      color: var(--text-light);
+    }
+
+    header, footer {
+      background: rgba(0, 0, 0, 0.7);
+      text-align: center;
+      padding: 1rem;
+      box-shadow: 0 0 20px #00e0ff;
+    }
+
+    .container {
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .toggle-container {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .toggle-container label {
+      margin-left: 0.5rem;
+      color: #00e0ff;
+      font-weight: bold;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 25px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 25px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 4px;
+      bottom: 3.5px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #00e0ff;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    .product {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      box-shadow: 0 0 10px rgba(0,255,255,0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn {
+      background-color: #00e0ff;
+      color: #000;
+      padding: 0.7rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 1rem;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #00c2e0;
+    }
+
+    input[type="number"] {
+      width: 60px;
+      padding: 0.4rem;
+      border-radius: 5px;
+      border: none;
+      margin-left: 10px;
+    }
+
+    .qris p {
+      font-weight: bold;
+      color: #00e0ff;
+      margin-top: 1rem;
+    }
+
+    .overlay, .receipt-popup, .error-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: none;
+      z-index: 1000;
+    }
+
+    .overlay {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .receipt-popup, .error-popup {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #1b1b1b;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 20px #00e0ff;
+      color: white;
+      max-width: 90%;
+    }
+
+    .error-popup {
+      border: 2px solid red;
+      background: #400;
+    }
+
+    body.light-mode .receipt-popup,
+    body.light-mode .error-popup {
+      background: white;
+      color: #111;
+    }
+  
+.whatsapp-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #25d366;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 50px;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  transition: background-color 0.3s;
+  z-index: 999;
+}
+
+.whatsapp-float:hover {
+  background-color: #1ebe5d;
+}
+
+</style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/></head>
+<body>
+<div class="toggle-container">
+<label class="switch">
+<input id="mode-switch" onchange="toggleMode()" type="checkbox"/>
+<span class="slider"></span>
+</label>
+<label for="mode-switch">Mode</label>
+</div>
+<header>
+<h1>FARESTAofc STORE</h1>
+<p>Menjual Panel PTERODACTYL</p>
+</header>
+<div class="container">
+<section class="product-list">
+<h2>Pilih Produk dan Jumlah</h2>
+<div id="product-container"></div>
+<button class="btn" onclick="updateTotal()">Lanjut ke Pembayaran</button>
+</section>
+<section class="qris" id="qris-section" style="display:none;">
+<h2>Ringkasan Pesanan</h2>
+<div id="order-summary"></div>
+<h3>Pembayaran via DANA</h3>
+<p>NO DANA: 085778739965</p>
+</section>
+<section class="payment-proof">
+<h2>Upload Bukti Pembayaran</h2>
+<input accept="image/*,application/pdf" id="payment-proof" onchange="autoShowQRIS()" type="file"/>
+<button class="btn" onclick="handlePaymentProof()">Konfirmasi Pembayaran</button>
+</section>
+</div>
+<div class="overlay" id="popup-overlay" onclick="closePopup()"></div>
+<div class="receipt-popup" id="popup-receipt">
+<h3>Struk Belanja</h3>
+<div id="popup-receipt-content"></div>
+<p style="margin-top: 1rem; font-weight: bold; color: #00e0ff;">
+      TUNGGU PROSES PANEL ANDA DENGAN ADMIN SILAHKAN SS BAGIAN INI, TERIMAKASIH TELAH PERCAYA PADA FARESTAofc
+    </p>
+<p style="margin-top: 1rem; font-weight: bold; color: #00e0ff;">
+      HUBUNGI ADMIN AGAR PANELMU SEGARA DI BUAT DAN BAWA BUKTI DANA!!
+    </p>
+<button class="btn" onclick="closePopup()">Tutup</button>
+</div>
+<div class="error-popup" id="popup-error">
+<h3>Error</h3>
+<div id="popup-error-content"></div>
+<button class="btn" onclick="closePopup()">Tutup</button>
+</div>
+<footer>
+<p>WA: 0857-7873-9965 | Email: farhanrisqi17@gmail.com</p>
+</footer>
+<script>
+    const produk = [
+      { nama: "PANEL 1GB", harga: 1000 },
+      { nama: "PANEL 2GB", harga: 2000 },
+      { nama: "PANEL 3GB", harga: 3000 },
+      { nama: "PANEL 4GB", harga: 4000 },
+      { nama: "PANEL 5GB", harga: 5000 },
+      { nama: "PANEL 6GB", harga: 6000 },
+      { nama: "PANEL 7GB", harga: 7000 },
+      { nama: "PANEL 8GB", harga: 8000 },
+      { nama: "PANEL 9GB", harga: 9000 },
+      { nama: "PANEL 10GB", harga: 10000 },
+      { nama: "PANEL UNLI", harga: 11000 }
+    ];
+
+    let orderDetail = "";
+    let plainTextDetail = "";
+
+    window.onload = function() {
+      const container = document.getElementById("product-container");
+      produk.forEach((p, i) => {
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `<label>${p.nama} - Rp${p.harga.toLocaleString()} <input type="number" id="qty-${i}" value="0" min="0"></label>`;
+        container.appendChild(div);
+      });
+    };
+
+    function updateTotal() {
+      let total = 0;
+      orderDetail = "";
+      plainTextDetail = "";
+      produk.forEach((p, i) => {
+        const qty = parseInt(document.getElementById(`qty-${i}`).value) || 0;
+        if (qty > 0) {
+          const subtotal = qty * p.harga;
+          total += subtotal;
+          orderDetail += `<p>${p.nama} x ${qty} - Rp${subtotal.toLocaleString()}</p>`;
+          plainTextDetail += `- ${p.nama} x ${qty} = Rp${subtotal.toLocaleString()}\n`;
+        }
+      });
+      if (total > 0) {
+        orderDetail += `<p><strong>Total: Rp${total.toLocaleString()}</strong></p>`;
+        plainTextDetail += `Total: Rp${total.toLocaleString()}`;
+        document.getElementById('order-summary').innerHTML = orderDetail;
+        document.getElementById('qris-section').style.display = 'block';
+      } else {
+        document.getElementById('order-summary').innerHTML = "<p>Silakan pilih produk terlebih dahulu.</p>";
+      }
+    }
+
+    function handlePaymentProof() {
+      const proofInput = document.getElementById('payment-proof');
+      if (proofInput.files.length > 0) {
+        const nomorWA = "6285778739965";
+        const pesan = encodeURIComponent(`Halo, saya telah melakukan pembayaran dengan rincian:\n\n${plainTextDetail}\n\nBerikut bukti pembayaran saya.`);
+        const waUrl = `https://wa.me/${nomorWA}?text=${pesan}`;
+        window.open(waUrl, '_blank');
+
+        document.getElementById('popup-overlay').style.display = 'block';
+        document.getElementById('popup-receipt').style.display = 'block';
+        document.getElementById('popup-receipt-content').innerHTML = orderDetail + `<p>Terima kasih telah berbelanja!</p>`;
+      } else {
+        document.getElementById('popup-overlay').style.display = 'block';
+        document.getElementById('popup-error').style.display = 'block';
+        document.getElementById('popup-error-content').innerHTML = "Silakan unggah bukti pembayaran terlebih dahulu!";
+      }
+    }
+
+    function closePopup() {
+      document.getElementById('popup-overlay').style.display = 'none';
+      document.getElementById('popup-receipt').style.display = 'none';
+      document.getElementById('popup-error').style.display = 'none';
+    }
+
+    function autoShowQRIS() {
+      const file = document.getElementById('payment-proof').files[0];
+      if (file) {
+        document.getElementById('qris-section').style.display = 'block';
+      }
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("light-mode");
+    }
+  </script>
+<a class="whatsapp-float" href="https://wa.me/6285778739965?text=Halo%20admin%20FARESTAofc%2C%20saya%20butuh%20bantuan." target="_blank" title="Chat Admin"><i class="fab fa-whatsapp" style="margin-right: 8px;"></i>Chat Admin</a>
+</body>
+</html>
